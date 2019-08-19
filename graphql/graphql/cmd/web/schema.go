@@ -1,33 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/graphql-go/graphql"
 	"log"
 )
-
-type User struct {
-	ID    string
-	Name  string
-	Carts []*Cart
-}
-
-type Item struct {
-	ID    string
-	Sku   string
-	Name  string
-	Price float64
-}
-
-type CartItem struct {
-	ID       string
-	Item     *Item
-	Quantity int
-}
-
-type Cart struct {
-	ID    string
-	Items []*CartItem
-}
 
 func getSchema() graphql.Schema {
 	var itemType = graphql.NewObject(
@@ -98,81 +75,6 @@ func getSchema() graphql.Schema {
 		},
 	)
 
-	items := []*Item{
-		{
-			ID:    "1399f8ea-3173-40ec-8fef-ef247348fadb",
-			Sku:   "US-1235-01",
-			Name:  "Lethal White",
-			Price: 35.99,
-		},
-		{
-			ID:    "3b418bdb-56d1-41d7-a2bf-0b642278aa9e",
-			Sku:   "US-1236-01",
-			Name:  "Killing Reagan",
-			Price: 15.99,
-		},
-		{
-			ID:    "d9e9a7c8-69ef-4edd-ac4a-8937ac1863d5",
-			Sku:   "US-1234-01",
-			Name:  "Go Programming",
-			Price: 24.99,
-		},
-	}
-
-	brennonCart := Cart{
-		ID: "2ebab75e-037b-4935-a848-74c3a99cebe0",
-		Items: []*CartItem{
-			{
-				ID:       "cd8bf860-c819-48e6-8f5d-899ec8be0af4",
-				Item:     items[0],
-				Quantity: 1,
-			},
-			{
-				ID:       "dc50c278-d11e-4c9a-a04a-d54c79d3f6ea",
-				Item:     items[1],
-				Quantity: 1,
-			},
-		},
-	}
-
-	jamieCart := Cart{
-		ID: "1945130b-4b6e-4df0-aac4-daeff6ef0c21",
-		Items: []*CartItem{
-			{
-				ID:       "0139911f-1d31-41b7-86a7-2cd89b19b52a",
-				Item:     items[0],
-				Quantity: 1,
-			},
-			{
-				ID:       "a9f8a1bc-384d-4d02-a2a3-45e15a4ef477",
-				Item:     items[2],
-				Quantity: 1,
-			},
-		},
-	}
-
-	carts := []Cart{
-		brennonCart,
-		jamieCart,
-	}
-
-	users := []User{
-		{
-			ID:   "7aea4b8f-a041-4a88-aee1-df3ebca92003",
-			Name: "Brennon Loveless",
-			Carts: []*Cart{
-				&brennonCart,
-			},
-		},
-		{
-			ID:   "80ee6109-5057-4024-842e-289e6fbb2522",
-			Name: "Jamie Loveless",
-			Carts: []*Cart{
-				&jamieCart,
-			},
-		},
-	}
-
 	fields := graphql.Fields{
 		"users": &graphql.Field{
 			Type:        graphql.NewList(userType),
@@ -183,7 +85,7 @@ func getSchema() graphql.Schema {
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return users, nil
+				return getUsers(), nil
 			},
 		},
 		"carts": &graphql.Field{
@@ -195,7 +97,7 @@ func getSchema() graphql.Schema {
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return carts, nil
+				return getCarts(), nil
 			},
 		},
 		"items": &graphql.Field{
@@ -207,7 +109,7 @@ func getSchema() graphql.Schema {
 				},
 			},
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				return items, nil
+				return getItems(), nil
 			},
 		},
 		"user": &graphql.Field{
@@ -221,12 +123,10 @@ func getSchema() graphql.Schema {
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				id, ok := p.Args["id"]
 				if ok {
-					for _, user := range users {
-						if user.ID == id {
-							return user, nil
-						}
-					}
+					user, _ := getUser(id.(string))
+					return user, nil
 				}
+
 				return nil, nil
 			},
 		},
@@ -241,11 +141,8 @@ func getSchema() graphql.Schema {
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				id, ok := p.Args["id"]
 				if ok {
-					for _, cart := range carts {
-						if cart.ID == id {
-							return cart, nil
-						}
-					}
+					cart, _ := getCart(id.(string))
+					return cart, nil
 				}
 				return nil, nil
 			},
@@ -261,18 +158,92 @@ func getSchema() graphql.Schema {
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				id, ok := p.Args["id"]
 				if ok {
-					for _, item := range items {
-						if item.ID == id {
-							return item, nil
-						}
-					}
+					item, _ := getItem(id.(string))
+					return item, nil
 				}
 				return nil, nil
 			},
 		},
 	}
+
+	mutationType := graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "Mutation",
+			Fields: graphql.Fields{
+				"createUser": &graphql.Field{
+					Type: userType,
+					Description: "",
+					Args: graphql.FieldConfigArgument{
+						"name": &graphql.ArgumentConfig{
+							Type:         graphql.NewNonNull(graphql.String),
+						},
+					},
+					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+						name := params.Args["name"].(string)
+						user, _ := createUser(name)
+						return user, nil
+					},
+				},
+				"addCartToUser": &graphql.Field{
+					Type: userType,
+					Description: "",
+					Args: graphql.FieldConfigArgument{
+						"userID": &graphql.ArgumentConfig{
+							Type: graphql.NewNonNull(graphql.String),
+						},
+					},
+					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+						user, _ := getUser(params.Args["userID"].(string))
+						if user != nil {
+							err := addCartToUser(user)
+							if err != nil {
+								fmt.Printf("error: %v\n", err)
+								return nil, err
+							}
+
+							return user, nil
+						}
+
+						return nil, nil
+					},
+				},
+				"addItemToCart": &graphql.Field{
+					Type:        cartType,
+					Description: "",
+					Args: graphql.FieldConfigArgument{
+						"cartID": &graphql.ArgumentConfig{
+							Type: graphql.NewNonNull(graphql.String),
+						},
+						"itemID": &graphql.ArgumentConfig{
+							Type: graphql.NewNonNull(graphql.String),
+						},
+						"quantity": &graphql.ArgumentConfig{
+							Type:         graphql.NewNonNull(graphql.Int),
+						},
+					},
+					Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+						item, _ := getItem(params.Args["itemID"].(string))
+						cart, _ := getCart(params.Args["cartID"].(string))
+						quantity := params.Args["quantity"].(int)
+						if item != nil && cart != nil {
+							_, err := addItemToCart(cart, item, quantity)
+							if err != nil {
+								fmt.Printf("error: %v\n", err)
+								return nil, err
+							}
+
+							return cart, nil
+						}
+
+						return nil, fmt.Errorf("cart %v, item %v, quantity %d", cart, item, quantity)
+					},
+				},
+			},
+		},
+	)
+
 	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: fields}
-	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
+	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery), Mutation: mutationType}
 	schema, err := graphql.NewSchema(schemaConfig)
 	if err != nil {
 		log.Fatalf("failed to create new schema, error: %v", err)
