@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
 import {
     AppBar,
-    Badge,
-    Button,
     Container,
     Grid,
     Link,
@@ -11,39 +9,20 @@ import {
     Toolbar,
     Typography
 } from '@material-ui/core';
-import {createStyles, makeStyles} from '@material-ui/core/styles';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import Items from '../components/Items';
-import Users from '../components/Users';
-import {useHomeStyles} from '../utils/styles';
+import {useHomeStyles, useModalStyles} from '../utils/styles';
 import {getClient} from '../utils/apollo-client';
 import {GET_USER_QUERY} from '../utils/queries';
+import Items from '../components/Items';
+import Users from '../components/Users';
 import AccountMenu from '../components/AccountMenu';
-
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        paper: {
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            width: '50%',
-            height: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: theme.palette.background.paper,
-            padding: theme.spacing(2, 4, 4),
-            borderRadius: 2,
-            outline: 0,
-        },
-    }),
-);
+import ShoppingCartMenu from "../components/ShoppingCartMenu";
 
 const Home = () => {
     const [userData, setUserData] = useState(null);
     const [cartData, setCartData] = useState(null);
     const [showLogin, setShowLogin] = useState(false);
     const classes = useHomeStyles();
-    const modalClasses = useStyles();
-    const userLoading = false;
+    const modalClasses = useModalStyles();
 
     const handleUserLogin = (userID) => {
         getClient().query({
@@ -68,11 +47,6 @@ const Home = () => {
         handleUserLogin(localStorage.getItem("userID"));
     }
 
-    let cartQuantity = null;
-    if (cartData && cartData.items) {
-        cartQuantity = cartData.items.reduce((accumulator, item) => (accumulator + item.quantity), 0);
-    }
-
     return (
         <React.Fragment>
             <AppBar position="absolute" className={classes.appBar}>
@@ -80,20 +54,14 @@ const Home = () => {
                     <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
                         Shopping Cart
                     </Typography>
-                    {cartQuantity != null && (
-                        <Button color="inherit">
-                            <Badge badgeContent={cartQuantity} color="secondary">
-                                <ShoppingCartIcon/>
-                            </Badge>
-                        </Button>
-                    )}
+                    <ShoppingCartMenu cart={cartData}/>
                     <AccountMenu userData={userData} setUserData={setUserData} setCartData={setCartData} setShowLogin={setShowLogin}/>
                 </Toolbar>
             </AppBar>
             <main className={classes.content}>
                 <div className={classes.appBarSpacer}/>
                 <Container maxWidth="lg" className={classes.container}>
-                    {!userLoading && !userData && (
+                    {!userData && (
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
                                 <Paper className={classes.paper}>

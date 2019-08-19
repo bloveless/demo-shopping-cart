@@ -1,4 +1,4 @@
-import {gql} from "apollo-boost";
+import {gql} from 'apollo-boost';
 
 const ITEM_QUERY = `
     id,
@@ -69,18 +69,6 @@ export const ADD_ITEM_TO_CART = gql`
 export const GET_ALL_USERS = gql`
     {
         users {
-            id,
-            name,
-            carts {
-                ${CART_QUERY}
-            }
-        }
-    }
-`;
-
-export const CREATE_USER_CART = gql`
-    mutation addCartToUser($userID: String!) {
-        addCartToUser(userID: $userID) {
             id,
             name,
             carts {

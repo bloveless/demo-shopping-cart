@@ -1,10 +1,27 @@
-import {makeStyles} from '@material-ui/core/styles';
+import {createStyles, makeStyles} from '@material-ui/core/styles';
 
 export const useAppStyles = makeStyles(theme => ({
     root: {
         display: 'flex',
     },
 }));
+
+export const useModalStyles = makeStyles((theme) =>
+    createStyles({
+        paper: {
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: '50%',
+            height: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: theme.palette.background.paper,
+            padding: theme.spacing(2, 4, 4),
+            borderRadius: 2,
+            outline: 0,
+        },
+    }),
+);
 
 export const useHomeStyles = makeStyles(theme => ({
     root: {
@@ -52,3 +69,34 @@ export const useHomeStyles = makeStyles(theme => ({
         height: 240,
     },
 }));
+
+export const useItemRowStyles = makeStyles((theme) =>
+    createStyles({
+        button: {
+            margin: theme.spacing(1),
+        },
+        input: {
+            display: 'none',
+        },
+    }),
+);
+
+export const useUsersStyles = makeStyles((theme) =>
+    createStyles({
+        container: {
+            display: 'flex',
+            flexWrap: 'wrap',
+        },
+        textField: {
+            marginLeft: theme.spacing(1),
+            marginRight: theme.spacing(1),
+            width: '100%',
+        },
+        button: {
+            margin: theme.spacing(1),
+        },
+        input: {
+            display: 'none',
+        },
+    }),
+);

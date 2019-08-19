@@ -1,5 +1,5 @@
 import React from 'react';
-import {useQuery} from "@apollo/react-hooks";
+import {useQuery} from '@apollo/react-hooks';
 import {
     Table,
     TableBody,
@@ -7,9 +7,9 @@ import {
     TableHead,
     TableRow,
 } from '@material-ui/core';
+import {GET_ALL_ITEMS} from '../utils/queries';
 import Title from './Title';
 import ItemRow from './ItemRow';
-import {GET_ALL_ITEMS} from "../utils/queries";
 
 export default function Items({cart, setCart}) {
     const {loading, error, data} = useQuery(GET_ALL_ITEMS);

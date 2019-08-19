@@ -1,31 +1,12 @@
 import React, {useState} from 'react';
 import {useQuery, useMutation} from "@apollo/react-hooks";
-import {Button, createStyles, makeStyles, Table, TableBody, TableCell, TableHead, TableRow, TextField} from '@material-ui/core';
+import {Button, Table, TableBody, TableCell, TableHead, TableRow, TextField} from '@material-ui/core';
+import {GET_ALL_USERS,CREATE_USER} from '../utils/queries';
+import {useUsersStyles} from '../utils/styles';
 import Title from './Title';
-import {GET_ALL_USERS,CREATE_USER} from "../utils/queries";
-
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        container: {
-            display: 'flex',
-            flexWrap: 'wrap',
-        },
-        textField: {
-            marginLeft: theme.spacing(1),
-            marginRight: theme.spacing(1),
-            width: '100%',
-        },
-        button: {
-            margin: theme.spacing(1),
-        },
-        input: {
-            display: 'none',
-        },
-    }),
-);
 
 export default function Users({handleUserLogin}) {
-    const classes = useStyles();
+    const classes = useUsersStyles();
     const {loading, error, data, refetch} = useQuery(GET_ALL_USERS);
     const [createUser] = useMutation(CREATE_USER);
     const [values, setValues] = useState({

@@ -1,27 +1,15 @@
 import React from 'react';
 import {useMutation} from "@apollo/react-hooks";
 import {
-    createStyles,
-    makeStyles,
     TableRow,
     TableCell,
     Button,
 } from "@material-ui/core";
-import {ADD_ITEM_TO_CART} from "../utils/queries";
-
-const useStyles = makeStyles((theme) =>
-    createStyles({
-        button: {
-            margin: theme.spacing(1),
-        },
-        input: {
-            display: 'none',
-        },
-    }),
-);
+import {ADD_ITEM_TO_CART} from '../utils/queries';
+import {useItemRowStyles} from '../utils/styles';
 
 const ItemRow = ({item, cart, setCart}) => {
-    const classes = useStyles();
+    const classes = useItemRowStyles();
     const [addItemToCart, {loading: addItemToCartLoading}] = useMutation(ADD_ITEM_TO_CART);
 
     const handleAddItemToCart = (itemID) => {
