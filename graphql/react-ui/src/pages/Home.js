@@ -38,7 +38,12 @@ const Home = () => {
                 setCartData(user.carts[0])
             }
 
-            localStorage.setItem("userID", user.id);
+            if (user && user.id) {
+                localStorage.setItem("userID", user.id);
+            } else {
+                localStorage.removeItem("userID");
+            }
+
             setShowLogin(false);
         });
     };

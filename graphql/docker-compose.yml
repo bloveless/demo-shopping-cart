@@ -13,3 +13,13 @@ services:
       - ./graphql:/home/appuser/app:cached
     ports:
       - 4000:4000
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/docker/frontend/Dockerfile
+    command: ["sh", "-c", "yarn install && yarn start"]
+    volumes:
+      - ./react-ui:/app:cached
+      - /app/node_modules
+    ports:
+      - 3000:3000
