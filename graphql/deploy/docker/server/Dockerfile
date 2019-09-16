@@ -1,22 +1,27 @@
-FROM golang:1.11-alpine as builder
+FROM golang:1.13-alpine as builder
 
 ENV CGO_ENABLED 0
 
 RUN apk update \
-    && apk add --no-cache git make g++ \
+    && apk add --no-cache git \
     && rm -rf /var/cache/apk/* \
-    && adduser -D appuser \
+    && addgroup -g 1000 appuser \
+    && adduser -S -u 1000 -G appuser appuser \
     && mkdir -p /home/appuser/app \
     && chown -R appuser:appuser /home/appuser
+
+RUN go get -u github.com/go-delve/delve/cmd/dlv \
+    && go get -u github.com/cortesi/modd/cmd/modd
 
 COPY --chown=appuser:appuser ./graphql /home/appuser/app
 WORKDIR /home/appuser/app
 
 USER appuser
 
-RUN make
+RUN go mod download \
+    && go build -o ./bin/graphql cmd/web/*.go
 
-CMD ["make", "debug"]
+CMD ["./bin/graphql"]
 
 ####---- Production Image ----####
 
@@ -29,4 +34,4 @@ WORKDIR /home/appuser/app
 
 USER appuser
 
-CMD ["sh", "-c", "./bin/snippetbox -dbUser=$MYSQL_USER -dbPass=$MYSQL_PASSWORD -dbHost=$MYSQL_HOST -db=$MYSQL_DATABASE"]
+CMD ["./bin/graphql"]
