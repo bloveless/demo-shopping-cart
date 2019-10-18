@@ -1,5 +1,7 @@
 FROM golang:1.13-alpine as builder
 
+EXPOSE 4000
+
 ENV CGO_ENABLED 0
 
 RUN apk update \
@@ -14,18 +16,10 @@ COPY --chown=appuser:appuser ./graphql /home/appuser/app
 
 USER appuser
 
-RUN mkdir -p /tmp/dependencies
-
-WORKDIR /tmp/dependencies
-
-# go mod init dependencies is an unfortunate hack to get go to respect the dependencies within modd
-# seems like go get will only respect the dependencies of a package if it is in mod mode which means it need to be in
-# a go mod initialized directory
-RUN go mod init dependencies \
-    && go get -u github.com/go-delve/delve/cmd/dlv \
-    && go get -u github.com/cortesi/modd/cmd/modd
-
 WORKDIR /home/appuser/app
+
+RUN go get -u github.com/go-delve/delve/cmd/dlv \
+    && go get -u github.com/cortesi/modd/cmd/modd
 
 RUN go mod download \
     && go build -o ./bin/graphql cmd/web/*.go
