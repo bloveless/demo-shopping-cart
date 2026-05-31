@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+
 	"github.com/google/uuid"
 )
 
@@ -57,9 +58,9 @@ func getUsers() []*User {
 }
 
 func createUser(name string) (*User, error) {
-	newUserUuid, _ := uuid.NewRandom()
+	newUserUUID, _ := uuid.NewRandom()
 	user := &User{
-		ID: newUserUuid.String(),
+		ID:   newUserUUID.String(),
 		Name: name,
 	}
 
@@ -115,9 +116,9 @@ func addCartToUser(user *User) error {
 		return errors.New("user does not exist")
 	}
 
-	cartUuid, _ := uuid.NewRandom()
+	cartUUID, _ := uuid.NewRandom()
 	cart := &Cart{
-		ID: cartUuid.String(),
+		ID: cartUUID.String(),
 	}
 
 	user.Carts = append(user.Carts, cart)
@@ -140,11 +141,11 @@ func addItemToCart(cart *Cart, item *Item, quantity int) (*CartItem, error) {
 		}
 	}
 
-	cartItemUuid, _ := uuid.NewRandom()
+	cartItemUUID, _ := uuid.NewRandom()
 	cartItem := &CartItem{
-		ID: cartItemUuid.String(),
+		ID:       cartItemUUID.String(),
 		Quantity: quantity,
-		Item: item,
+		Item:     item,
 	}
 	cart.Items = append(cart.Items, cartItem)
 

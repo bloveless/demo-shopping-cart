@@ -1,4 +1,4 @@
-module brennonloveless.com/snippetbox
+module brennonloveless.com/mockrift
 
 require (
 	github.com/go-http-utils/logger v0.0.0-20161128092850-f3a42dcdeae6
